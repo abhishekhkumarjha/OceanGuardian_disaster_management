@@ -1,0 +1,205 @@
+
+import React, { useState, useEffect } from "react";
+import { 
+  HazardReport, 
+  SocialMediaAnalytics, 
+  User,
+  SafeZone
+} from "@/entities/all";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { 
+  AlertTriangle, 
+  MapPin, 
+  TrendingUp, 
+  Users, 
+  Activity,
+  Waves,
+  Shield,
+  Clock,
+  BarChart3,
+  Plus
+} from "lucide-react";
+import { format } from "date-fns";
+
+import StatsOverview from "../components/dashboard/StatsOverview";
+import InteractiveMap from "../components/dashboard/InteractiveMap";
+import RecentReports from "../components/dashboard/RecentReports";
+import SentimentAnalysis from "../components/dashboard/SentimentAnalysis";
+import EmergencyAlerts from "../components/dashboard/EmergencyAlerts";
+
+export default function Dashboard() {
+  const [reports, setReports] = useState([]);
+  const [socialData, setSocialData] = useState([]);
+  const [safeZones, setSafeZones] = useState([]); // New state for safe zones
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedTimeRange, setSelectedTimeRange] = useState("24h");
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [selectedTimeRange]);
+
+  const loadDashboardData = async () => {
+    setIsLoading(true);
+    try {
+      // Added SafeZone.list() to Promise.all
+      const [currentUser, hazardReports, socialAnalytics, safeZoneData] = await Promise.all([
+        User.me(),
+        HazardReport.list("-created_date", 50),
+        SocialMediaAnalytics.list("-created_date", 100),
+        SafeZone.list() // Fetch safe zones
+      ]);
+      
+      setUser(currentUser);
+      setReports(hazardReports);
+      setSocialData(socialAnalytics);
+      setSafeZones(safeZoneData); // Set safe zones state
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+    }
+    setIsLoading(false);
+  };
+
+  const emergencyReports = reports.filter(report => 
+    report.is_emergency || report.severity === "critical"
+  );
+
+  const recentReports = reports.filter(report => {
+    const reportDate = new Date(report.created_date);
+    const now = new Date();
+    const hoursAgo = selectedTimeRange === "24h" ? 24 : selectedTimeRange === "7d" ? 168 : 720;
+    return (now - reportDate) / (1000 * 60 * 60) <= hoursAgo;
+  });
+
+  const verifiedReports = reports.filter(report => report.verification_status === "verified");
+  const pendingReports = reports.filter(report => report.verification_status === "pending");
+  const activeSafeZones = safeZones.filter(zone => zone.status === "active"); // New calculation for active safe zones
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="p-4 md:p-8">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Header */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">Ocean Hazard Dashboard</h1>
+              <p className="text-slate-600">Real-time monitoring and crowdsourced hazard reporting</p>
+              <div className="flex items-center gap-2 mt-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <span className="text-sm text-slate-500">Live monitoring active</span>
+              </div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+              <div className="flex gap-2">
+                {["24h", "7d", "30d"].map((range) => (
+                  <Button
+                    key={range}
+                    variant={selectedTimeRange === range ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedTimeRange(range)}
+                    className={selectedTimeRange === range ? "bg-blue-600" : ""}
+                  >
+                    {range === "24h" ? "24 Hours" : range === "7d" ? "7 Days" : "30 Days"}
+                  </Button>
+                ))}
+              </div>
+              <Link to={createPageUrl("ReportHazard")}>
+                <Button className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Report Hazard
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Emergency Alerts */}
+          {emergencyReports.length > 0 && (
+            <EmergencyAlerts emergencyReports={emergencyReports} />
+          )}
+
+          {/* Stats Overview */}
+          <StatsOverview 
+            totalReports={reports.length}
+            verifiedReports={verifiedReports.length}
+            pendingReports={pendingReports.length}
+            recentReports={recentReports.length}
+            socialMentions={socialData.length}
+            activeSafeZones={activeSafeZones.length} // Passed new prop
+            isLoading={isLoading}
+          />
+
+          {/* Main Content Grid */}
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Interactive Map - Takes 2 columns */}
+            <div className="lg:col-span-2">
+              <InteractiveMap 
+                reports={reports}
+                socialData={socialData}
+                safeZones={safeZones} // Passed new prop
+                isLoading={isLoading}
+              />
+            </div>
+
+            {/* Sidebar Content */}
+            <div className="space-y-6">
+              <SentimentAnalysis 
+                socialData={socialData}
+                isLoading={isLoading}
+              />
+              
+              <RecentReports 
+                reports={recentReports.slice(0, 5)}
+                isLoading={isLoading}
+                userRole={user?.role_type}
+              />
+            </div>
+          </div>
+
+          {/* Additional Analytics for Officials */}
+          {user?.role_type === "official" || user?.role_type === "analyst" ? (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-slate-900">System Analytics</h2>
+                <Link to={createPageUrl("SocialAnalytics")}>
+                  <Button variant="outline" size="sm">
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    View Full Analytics
+                  </Button>
+                </Link>
+              </div>
+              
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="text-center p-4 bg-blue-50 rounded-xl">
+                  <Shield className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-blue-900">
+                    {reports.length > 0 ? ((verifiedReports.length / reports.length) * 100).toFixed(1) : 0}%
+                  </div>
+                  <div className="text-sm text-blue-700">Verification Rate</div>
+                </div>
+                
+                <div className="text-center p-4 bg-green-50 rounded-xl">
+                  <TrendingUp className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-green-900">
+                    {socialData.filter(d => d.sentiment === "positive").length}
+                  </div>
+                  <div className="text-sm text-green-700">Positive Mentions</div>
+                </div>
+                
+                <div className="text-center p-4 bg-orange-50 rounded-xl">
+                  <Activity className="w-8 h-8 text-orange-600 mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-orange-900">
+                    {recentReports.length}
+                  </div>
+                  <div className="text-sm text-orange-700">Recent Activity</div>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}

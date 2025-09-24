@@ -1,0 +1,133 @@
+import React from 'react';
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { 
+  Waves, 
+  Wind, 
+  Zap, 
+  ArrowUp, 
+  Navigation, 
+  TrendingDown,
+  Mountain,
+  ArrowDown,
+  Droplets,
+  Package,
+  AlertTriangle
+} from "lucide-react";
+
+const HAZARD_TYPES = [
+  {
+    value: "tsunami",
+    label: "Tsunami",
+    description: "Large ocean waves caused by seismic activity",
+    icon: Waves,
+    color: "text-red-600 bg-red-100"
+  },
+  {
+    value: "storm_surge",
+    label: "Storm Surge",
+    description: "Abnormal rise in sea level during storms",
+    icon: Wind,
+    color: "text-orange-600 bg-orange-100"
+  },
+  {
+    value: "high_waves",
+    label: "High Waves",
+    description: "Unusually large waves affecting coastal areas",
+    icon: Waves,
+    color: "text-blue-600 bg-blue-100"
+  },
+  {
+    value: "swell_surge",
+    label: "Swell Surge",
+    description: "Long-period waves from distant storms",
+    icon: ArrowUp,
+    color: "text-indigo-600 bg-indigo-100"
+  },
+  {
+    value: "coastal_current",
+    label: "Coastal Current",
+    description: "Strong nearshore water currents",
+    icon: Navigation,
+    color: "text-teal-600 bg-teal-100"
+  },
+  {
+    value: "unusual_tidal",
+    label: "Unusual Tidal Event",
+    description: "Abnormal tidal patterns or levels",
+    icon: TrendingDown,
+    color: "text-purple-600 bg-purple-100"
+  },
+  {
+    value: "coastal_erosion",
+    label: "Coastal Erosion",
+    description: "Rapid loss of coastal land or beach",
+    icon: Mountain,
+    color: "text-yellow-600 bg-yellow-100"
+  },
+  {
+    value: "sea_level_rise",
+    label: "Sea Level Rise",
+    description: "Observed increase in local sea level",
+    icon: ArrowDown,
+    color: "text-green-600 bg-green-100"
+  },
+  {
+    value: "oil_spill",
+    label: "Oil Spill",
+    description: "Release of petroleum products into ocean",
+    icon: Droplets,
+    color: "text-gray-800 bg-gray-100"
+  },
+  {
+    value: "marine_debris",
+    label: "Marine Debris",
+    description: "Large accumulation of floating debris",
+    icon: Package,
+    color: "text-brown-600 bg-brown-100"
+  },
+  {
+    value: "other",
+    label: "Other",
+    description: "Other ocean-related hazards not listed",
+    icon: AlertTriangle,
+    color: "text-slate-600 bg-slate-100"
+  }
+];
+
+export default function HazardTypeSelector({ value, onChange }) {
+  return (
+    <div className="space-y-3">
+      <Label>Hazard Type *</Label>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {HAZARD_TYPES.map((hazard) => (
+          <Card
+            key={hazard.value}
+            className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+              value === hazard.value 
+                ? 'ring-2 ring-blue-500 shadow-md' 
+                : 'hover:ring-1 hover:ring-slate-300'
+            }`}
+            onClick={() => onChange(hazard.value)}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <div className={`p-2 rounded-lg ${hazard.color}`}>
+                  <hazard.icon className="w-5 h-5" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-slate-900 mb-1">
+                    {hazard.label}
+                  </h4>
+                  <p className="text-sm text-slate-600">
+                    {hazard.description}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}

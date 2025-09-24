@@ -1,0 +1,140 @@
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { 
+  MessageSquare, 
+  TrendingUp, 
+  TrendingDown,
+  AlertTriangle,
+  Smile,
+  Frown,
+  Minus
+} from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const SentimentBar = ({ sentiment, count, total, color }) => {
+  const percentage = total > 0 ? (count / total) * 100 : 0;
+  
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between text-sm">
+        <span className="capitalize font-medium">{sentiment}</span>
+        <span className="text-slate-500">{count}</span>
+      </div>
+      <div className="w-full bg-slate-200 rounded-full h-2">
+        <div 
+          className={`h-2 rounded-full ${color} transition-all duration-500`}
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default function SentimentAnalysis({ socialData, isLoading }) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-6 w-40" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {Array(4).fill(0).map((_, i) => (
+            <div key={i} className="space-y-2">
+              <div className="flex justify-between">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-4 w-8" />
+              </div>
+              <Skeleton className="h-2 w-full rounded-full" />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const sentimentCounts = socialData.reduce((acc, post) => {
+    acc[post.sentiment] = (acc[post.sentiment] || 0) + 1;
+    return acc;
+  }, {});
+
+  const totalPosts = socialData.length;
+  
+  const sentimentConfig = {
+    positive: { icon: Smile, color: "bg-green-500" },
+    negative: { icon: Frown, color: "bg-red-500" },
+    neutral: { icon: Minus, color: "bg-slate-500" },
+    panic: { icon: AlertTriangle, color: "bg-orange-500" },
+    informative: { icon: MessageSquare, color: "bg-blue-500" }
+  };
+
+  const dominantSentiment = Object.entries(sentimentCounts).reduce(
+    (max, [sentiment, count]) => count > max.count ? { sentiment, count } : max,
+    { sentiment: 'neutral', count: 0 }
+  );
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <MessageSquare className="w-5 h-5" />
+          Social Media Sentiment
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {totalPosts === 0 ? (
+          <div className="text-center py-8 text-slate-500">
+            <MessageSquare className="w-12 h-12 mx-auto mb-4 text-slate-300" />
+            <p>No social media data available</p>
+          </div>
+        ) : (
+          <>
+            {/* Overall Summary */}
+            <div className="p-4 bg-slate-50 rounded-xl">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-slate-700">Overall Mood</span>
+                <Badge className={`${sentimentConfig[dominantSentiment.sentiment]?.color} text-white`}>
+                  {dominantSentiment.sentiment}
+                </Badge>
+              </div>
+              <div className="text-2xl font-bold text-slate-900">
+                {totalPosts} mentions
+              </div>
+            </div>
+
+            {/* Sentiment Breakdown */}
+            <div className="space-y-4">
+              {Object.entries(sentimentConfig).map(([sentiment, config]) => (
+                <SentimentBar
+                  key={sentiment}
+                  sentiment={sentiment}
+                  count={sentimentCounts[sentiment] || 0}
+                  total={totalPosts}
+                  color={config.color}
+                />
+              ))}
+            </div>
+
+            {/* Trending Indicators */}
+            <div className="grid grid-cols-2 gap-4 text-center">
+              <div className="p-3 bg-green-50 rounded-lg">
+                <TrendingUp className="w-5 h-5 text-green-600 mx-auto mb-1" />
+                <div className="text-sm font-medium text-green-900">Positive Trend</div>
+                <div className="text-xs text-green-600">
+                  {((sentimentCounts.positive || 0) / totalPosts * 100).toFixed(1)}%
+                </div>
+              </div>
+              <div className="p-3 bg-red-50 rounded-lg">
+                <AlertTriangle className="w-5 h-5 text-red-600 mx-auto mb-1" />
+                <div className="text-sm font-medium text-red-900">Panic Level</div>
+                <div className="text-xs text-red-600">
+                  {((sentimentCounts.panic || 0) / totalPosts * 100).toFixed(1)}%
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

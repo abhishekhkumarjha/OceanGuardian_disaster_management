@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ocean-primary: #0066CC;
+  --ocean-secondary: #004080;
+  --ocean-light: #E6F3FF;
+  --ocean-accent: #FF6B35;
+  --slate-text: #334155;
+}

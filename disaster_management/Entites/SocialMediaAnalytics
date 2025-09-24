@@ -1,0 +1,102 @@
+{
+  "name": "SocialMediaAnalytics",
+  "type": "object",
+  "properties": {
+    "platform": {
+      "type": "string",
+      "enum": [
+        "twitter",
+        "facebook",
+        "instagram",
+        "youtube",
+        "news",
+        "other"
+      ],
+      "description": "Social media platform or news source"
+    },
+    "content": {
+      "type": "string",
+      "description": "Text content of the social media post"
+    },
+    "sentiment": {
+      "type": "string",
+      "enum": [
+        "positive",
+        "negative",
+        "neutral",
+        "panic",
+        "informative"
+      ],
+      "description": "Sentiment analysis result"
+    },
+    "hazard_keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Detected hazard-related keywords"
+    },
+    "location_mentioned": {
+      "type": "string",
+      "description": "Location mentioned in the post"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Estimated latitude if location is geocoded"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Estimated longitude if location is geocoded"
+    },
+    "post_url": {
+      "type": "string",
+      "description": "Original URL of the social media post"
+    },
+    "author_handle": {
+      "type": "string",
+      "description": "Username or handle of the post author"
+    },
+    "engagement_score": {
+      "type": "number",
+      "description": "Engagement score (likes, shares, comments)"
+    },
+    "credibility_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "AI-assessed credibility score of the post"
+    },
+    "hazard_type": {
+      "type": "string",
+      "enum": [
+        "tsunami",
+        "storm_surge",
+        "high_waves",
+        "swell_surge",
+        "coastal_current",
+        "unusual_tidal",
+        "coastal_erosion",
+        "sea_level_rise",
+        "oil_spill",
+        "marine_debris",
+        "other"
+      ],
+      "description": "Detected hazard type from content analysis"
+    },
+    "urgency_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "description": "Assessed urgency level"
+    }
+  },
+  "required": [
+    "platform",
+    "content",
+    "sentiment"
+  ]
+}

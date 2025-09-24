@@ -1,0 +1,125 @@
+{
+  "name": "HazardReport",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Brief title of the hazard report"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the observed hazard"
+    },
+    "hazard_type": {
+      "type": "string",
+      "enum": [
+        "tsunami",
+        "storm_surge",
+        "high_waves",
+        "swell_surge",
+        "coastal_current",
+        "unusual_tidal",
+        "coastal_erosion",
+        "sea_level_rise",
+        "oil_spill",
+        "marine_debris",
+        "other"
+      ],
+      "description": "Type of ocean hazard observed"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "moderate",
+        "high",
+        "critical"
+      ],
+      "default": "moderate",
+      "description": "Assessed severity of the hazard"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Latitude coordinate of the hazard location"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Longitude coordinate of the hazard location"
+    },
+    "location_description": {
+      "type": "string",
+      "description": "Descriptive location information"
+    },
+    "image_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs of uploaded images"
+    },
+    "video_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs of uploaded videos"
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "verified",
+        "false_alarm",
+        "duplicate"
+      ],
+      "default": "pending",
+      "description": "Verification status by officials"
+    },
+    "verified_by": {
+      "type": "string",
+      "description": "Email of official who verified the report"
+    },
+    "verification_notes": {
+      "type": "string",
+      "description": "Notes from verification process"
+    },
+    "impact_level": {
+      "type": "string",
+      "enum": [
+        "none",
+        "minimal",
+        "moderate",
+        "significant",
+        "severe"
+      ],
+      "description": "Assessed impact level"
+    },
+    "affected_population": {
+      "type": "number",
+      "description": "Estimated number of people affected"
+    },
+    "response_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Response actions taken or recommended"
+    },
+    "contact_info": {
+      "type": "string",
+      "description": "Contact information of reporter (optional)"
+    },
+    "is_emergency": {
+      "type": "boolean",
+      "default": false,
+      "description": "Flag for emergency situations requiring immediate attention"
+    }
+  },
+  "required": [
+    "title",
+    "description",
+    "hazard_type",
+    "latitude",
+    "longitude"
+  ]
+}

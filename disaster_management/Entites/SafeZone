@@ -1,0 +1,67 @@
+{
+  "name": "SafeZone",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the safe zone"
+    },
+    "activity_type": {
+      "type": "string",
+      "enum": [
+        "boating",
+        "fishing",
+        "general"
+      ],
+      "description": "Type of activity the zone is safe for"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "advisory"
+      ],
+      "default": "active",
+      "description": "Current status of the safe zone"
+    },
+    "valid_from": {
+      "type": "string",
+      "format": "date-time",
+      "description": "The time from which the advisory is valid"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date-time",
+      "description": "The time until which the advisory is valid"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Center latitude of the zone"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Center longitude of the zone"
+    },
+    "radius_km": {
+      "type": "number",
+      "description": "Radius of the safe zone in kilometers"
+    },
+    "conditions": {
+      "type": "string",
+      "description": "Specific conditions or notes for the zone"
+    },
+    "source": {
+      "type": "string",
+      "default": "INCOIS Advisory",
+      "description": "Source of the safe zone information"
+    }
+  },
+  "required": [
+    "name",
+    "activity_type",
+    "latitude",
+    "longitude",
+    "radius_km"
+  ]
+}
